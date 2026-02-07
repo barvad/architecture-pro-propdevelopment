@@ -4,11 +4,6 @@ mkdir -p ~/k8s-audit && cp audit-policy.yaml ~/k8s-audit/
 cd ~/k8s-audit
 
 minikube start \
-  --driver=docker \
-  --container-runtime=docker \
-  --force-systemd=true \
-  --kubernetes-version=v1.29.4 \
-  --extra-config=kubelet.cgroup-driver=cgroupfs \
   --mount \
   --mount-string="$HOME/k8s-audit:/etc/kubernetes/audit" \
   --extra-config=apiserver.audit-policy-file=/etc/kubernetes/audit/audit-policy.yaml \
