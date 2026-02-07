@@ -1,7 +1,9 @@
 #!/bin/bash
 
+
+
 minikube start --force \
-  --driver=qemu2 \
+  --driver=none \
   --container-runtime=docker \
   --kubernetes-version=v1.29.4 \
   --extra-config=kubelet.cgroup-driver=cgroupfs \
