@@ -5,7 +5,6 @@
 minikube start --force \
   --driver=none \
   --container-runtime=docker \
-  --kubernetes-version=v1.29.4 \
   --extra-config=kubelet.cgroup-driver=cgroupfs \
   --mount \
   --mount-string="$(pwd):/etc/kubernetes/audit" \
