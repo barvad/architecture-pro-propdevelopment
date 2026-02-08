@@ -1,9 +1,14 @@
 #!/bin/bash
 
+minikube start --force \
+  --driver=docker \
+  --container-runtime=docker \
+  --extra-config=kubelet.cgroup-driver=cgroupfs
 
+minikube stop
 
 minikube start --force \
-  --driver=none \
+  --driver=docker \
   --container-runtime=docker \
   --extra-config=kubelet.cgroup-driver=cgroupfs \
   --mount \
