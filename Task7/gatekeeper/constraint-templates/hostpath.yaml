@@ -1,0 +1,26 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: nohostpathvolumes
+spec:
+  crd:
+    spec:
+      names:
+        kind: NoHostPathVolumes     
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            message:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package nohostpathvolumes
+        
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          volume := input.review.object.spec.volumes[_]
+          volume.hostPath
+          msg := sprintf("hostPath volume '%s' is not allowed: %s", [volume.name, input.parameters.message])
+        }

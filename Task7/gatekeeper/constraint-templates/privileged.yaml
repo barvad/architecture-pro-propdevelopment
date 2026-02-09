@@ -1,0 +1,35 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: noprivilegedcontainers
+spec:
+  crd:
+    spec:
+      names:
+        kind: NoPrivilegedContainers
+      # УПРОЩЕННАЯ схема - либо удаляем validation, либо делаем минимальную
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            message:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package noprivilegedcontainers
+        
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          container := input.review.object.spec.containers[_]
+          container.securityContext.privileged == true
+          msg := sprintf("Privileged container '%s' is not allowed: %s", [container.name, input.parameters.message])
+        }
+        
+        # Проверяем init контейнеры тоже
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          container := input.review.object.spec.initContainers[_]
+          container.securityContext.privileged == true
+          msg := sprintf("Privileged init container '%s' is not allowed: %s", [container.name, input.parameters.message])
+        }

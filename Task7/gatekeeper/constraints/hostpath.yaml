@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: NoHostPathVolumes
+metadata:
+  name: no-hostpath
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "audit-zone"
+  parameters:
+    message: "hostPath volumes present a security risk and are not allowed"

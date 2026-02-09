@@ -1,0 +1,43 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: norootcontainers
+spec:
+  crd:
+    spec:
+      names:
+        kind: NoRootContainers
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            message:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package norootcontainers
+        
+        # Проверяем обычные контейнеры
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          container := input.review.object.spec.containers[_]
+          container.securityContext.runAsUser == 0
+          msg := sprintf("Container '%s' runs as root (UID 0): %s", [container.name, input.parameters.message])
+        }
+        
+        # Проверяем init контейнеры
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          container := input.review.object.spec.initContainers[_]
+          container.securityContext.runAsUser == 0
+          msg := sprintf("Init container '%s' runs as root (UID 0): %s", [container.name, input.parameters.message])
+        }
+        
+        # Проверяем securityContext на уровне pod
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          pod_context := input.review.object.spec.securityContext
+          pod_context.runAsUser == 0
+          msg := sprintf("Pod runs as root (UID 0): %s", [input.parameters.message])
+        }

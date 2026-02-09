@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: working-pod-3
+  namespace: audit-zone
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: echo
+    image: busybox:1.36
+    command: ["sh", "-c", "echo 'Pod is running' && sleep 3600"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+    volumeMounts:
+    - name: temp
+      mountPath: /tmp
+  volumes:
+  - name: temp
+    emptyDir: {}
